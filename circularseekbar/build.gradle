@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.library'
     id 'org.jetbrains.kotlin.android'
+    id 'maven-publish'
+    id 'signing'
 }
 
 android {
@@ -10,8 +12,6 @@ android {
     defaultConfig {
         minSdk 24
         targetSdk 33
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -43,6 +43,12 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -59,4 +65,59 @@ dependencies {
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            pom {
+                name = 'CircularSeekBar'
+                description = 'A circular SeekBar with Jetpack Compose'
+                url = 'https://github.com/ningyuv/CircularSeekBar'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'ningyuv'
+                        name = 'ningyuv'
+                        email = 'ningyuv@outlook.com'
+                    }
+                }
+
+                scm {
+                    connection = 'https://github.com/ningyuv/CircularSeekBar.git'
+                    developerConnection = 'https://github.com/ningyuv/CircularSeekBar.git'
+                    url = 'https://github.com/ningyuv/CircularSeekBar'
+                }
+            }
+
+            groupId "io.github.ningyuv"
+            artifactId "circular-seek-bar"
+            version "0.0.1"
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username = ossrhUsername
+                password = ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.release
 }
