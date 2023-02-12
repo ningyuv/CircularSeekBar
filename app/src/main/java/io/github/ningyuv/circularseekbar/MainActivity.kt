@@ -4,12 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -52,19 +49,27 @@ fun DemoScreen(
     value: Float,
     onChange: (Float) -> Unit
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CircularSeekbarView(
-            value = value,
-            onChange = onChange,
-        )
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(152.dp),
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+        Box {
+            CircularSeekbarView(
+                value = value,
+                onChange = onChange,
+            )
+            Text(text = "basic usage", Modifier.align(Alignment.Center))
+        }
+        Row(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            item {
+            Box {
+                val steps = 10
                 CircularSeekbarView(
                     value = value, onChange = onChange,
+                    modifier = Modifier.width(192.dp),
                     startAngle = -120f, fullAngle = 240f,
+                    steps = steps,
                     drawDot = { dotCenter, angle, color, radius ->
                         val starPath = Path()
                         val n = 8
@@ -88,10 +93,12 @@ fun DemoScreen(
                         }
                     }
                 )
+                Text(text = "steps = $steps", Modifier.align(Alignment.Center))
             }
-            item {
+            Box {
                 CircularSeekbarView(
                     value = value, onChange = onChange,
+                    modifier = Modifier.width(192.dp),
                     fullAngle = 270f,
                     drawDot = { dotCenter, angle, color, radius ->
                         val starPath = Path()
@@ -116,6 +123,7 @@ fun DemoScreen(
                         }
                     }
                 )
+                Text(text = "custom dot", Modifier.align(Alignment.Center))
             }
         }
         Text(text = "progress: $value", Modifier.padding(10.dp))
@@ -125,6 +133,22 @@ fun DemoScreen(
                 val progress = 1f / num * i
                 Button(onClick = { onChange(progress) }) {
                     Text(text = "set $progress")
+                }
+            }
+        }
+        Divider(Modifier.padding(0.dp, 10.dp))
+        Text(text = "multi touch")
+        Row {
+            for (i in 0 until 2) {
+                Box {
+                    var valueIndependent by remember {
+                        mutableStateOf(0f)
+                    }
+                    CircularSeekbarView(
+                        value = valueIndependent, onChange = { v -> valueIndependent = v },
+                        modifier = Modifier.width(192.dp),
+                    )
+                    Text(text = "value: ${"%.2f".format(valueIndependent)}", modifier = Modifier.align(Alignment.Center))
                 }
             }
         }

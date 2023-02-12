@@ -54,8 +54,8 @@ fun CircularSeekbarView(
     var arcCenter by remember {
         mutableStateOf<Offset?>(null)
     }
-    var dragging by remember {
-        mutableStateOf(false)
+    var draggingPointerId by remember {
+        mutableStateOf<Int?>(null)
     }
     val requestDisallowInterceptTouchEvent = remember {
         RequestDisallowInterceptTouchEvent()
@@ -65,57 +65,61 @@ fun CircularSeekbarView(
         .pointerInteropFilter(
             requestDisallowInterceptTouchEvent
         ) {
-            when (it.action) {
-                MotionEvent.ACTION_DOWN -> {
+            when (it.actionMasked) {
+                MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+                    println(it.getPointerId(it.actionIndex))
                     val center = dragCenter ?: return@pointerInteropFilter false
-                    if (Offset(it.x, it.y)
+                    if (Offset(it.getX(it.actionIndex), it.getY(it.actionIndex))
                             .minus(center)
                             .getDistance() <= dotRadiusInPx + dotTouchThresholdInPx
                     ) {
-                        dragging = true
+                        draggingPointerId = it.getPointerId(it.actionIndex)
                         requestDisallowInterceptTouchEvent(true)
                     }
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    if (dragging) {
-                        val center = arcCenter ?: return@pointerInteropFilter false
-                        val v = Offset(it.x, it.y).minus(center)
-                        if (v.getDistance() == 0f) return@pointerInteropFilter true
-                        var nextSweepAngle =
-                            (atan(v.y / v.x) / PI * 180 - innerStartAngle).toFloat()
-                        if (v.x < 0) {
-                            nextSweepAngle += 180
+                    val center = arcCenter ?: return@pointerInteropFilter false
+                    val pointerId = draggingPointerId ?: return@pointerInteropFilter true
+                    val pointerIndex = it.findPointerIndex(pointerId)
+                    val pointerOffset = Offset(it.getX(pointerIndex), it.getY(pointerIndex))
+                    val v = pointerOffset.minus(center)
+                    if (v.getDistance() == 0f) return@pointerInteropFilter true
+                    var nextSweepAngle =
+                        (atan(v.y / v.x) / PI * 180 - innerStartAngle).toFloat()
+                    if (v.x < 0) {
+                        nextSweepAngle += 180
+                    }
+                    while (nextSweepAngle < 0) {
+                        nextSweepAngle += 360
+                    }
+                    while (nextSweepAngle > 360) {
+                        nextSweepAngle -= 360
+                    }
+                    nextSweepAngle =
+                        if (sweepAngle > fullAngle * 3 / 4 && (nextSweepAngle < fullAngle / 2 || nextSweepAngle > fullAngle)) {
+                            fullAngle
+                        } else if (sweepAngle < fullAngle * 1 / 4 && nextSweepAngle > fullAngle / 2) {
+                            0f
+                        } else {
+                            nextSweepAngle
                         }
-                        while (nextSweepAngle < 0) {
-                            nextSweepAngle += 360
-                        }
-                        while (nextSweepAngle > 360) {
-                            nextSweepAngle -= 360
-                        }
-                        nextSweepAngle =
-                            if (sweepAngle > fullAngle * 3 / 4 && (nextSweepAngle < fullAngle / 2 || nextSweepAngle > fullAngle)) {
-                                fullAngle
-                            } else if (sweepAngle < fullAngle * 1 / 4 && nextSweepAngle > fullAngle / 2) {
-                                0f
-                            } else {
-                                nextSweepAngle
-                            }
-                        if (steps > 0) {
-                            val perStep = fullAngle / steps
-                            val step = (nextSweepAngle / perStep).roundToInt()
-                            nextSweepAngle = step * perStep
-                        }
-                        if (nextSweepAngle / fullAngle != value) {
-                            onChange(nextSweepAngle / fullAngle)
-                        }
+                    if (steps > 0) {
+                        val perStep = fullAngle / steps
+                        val step = (nextSweepAngle / perStep).roundToInt()
+                        nextSweepAngle = step * perStep
+                    }
+                    if (nextSweepAngle / fullAngle != value) {
+                        onChange(nextSweepAngle / fullAngle)
                     }
                 }
-                MotionEvent.ACTION_UP -> {
-                    dragging = false
-                    requestDisallowInterceptTouchEvent(false)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_POINTER_UP -> {
+                    if (it.getPointerId(it.actionIndex) == draggingPointerId) {
+                        draggingPointerId = null
+                        requestDisallowInterceptTouchEvent(false)
+                    }
                 }
                 MotionEvent.ACTION_CANCEL -> {
-                    dragging = false
+                    draggingPointerId = null
                 }
                 else -> return@pointerInteropFilter false
             }

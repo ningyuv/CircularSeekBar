@@ -4,13 +4,13 @@ A circular SeekBar with Jetpack Compose
 ## Demo app
 [demo app](https://github.com/ningyuv/CircularSeekBar/releases/latest/download/CircularSeekBar-demo.apk) in release
 
-<img src="https://user-images.githubusercontent.com/25382292/218245725-e2549177-3ce6-44cd-8315-85d09496f79c.png" alt="" width="320">
+sup<img src="https://user-images.githubusercontent.com/25382292/218315201-c3fc49f0-ae55-4734-b780-35e3cf5235de.png" alt="" width="320">
 
 ## Setup
 ### Gradle
 ``` Gradle
 dependencies {
-    implementation 'io.github.ningyuv:circular-seek-bar:0.0.1'
+    implementation 'io.github.ningyuv:circular-seek-bar:0.0.2'
 }
 ```
 
@@ -58,9 +58,9 @@ var value by rememberSaveable {
 CircularSeekbarView(
     value = value,
     onChange = { v -> value = v },
-    activeColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    inactiveColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    dotColor: Color = MaterialTheme.colorScheme.primary
+    activeColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    inactiveColor = MaterialTheme.colorScheme.primaryContainer,
+    dotColor = MaterialTheme.colorScheme.primary
 )
 ```
 ### custom angle and drag dot
@@ -91,5 +91,16 @@ CircularSeekbarView(
           drawPath(starPath, color)
       }
   }
+)
+```
+### steps
+```kt
+var value by rememberSaveable {
+    mutableStateOf(0f)
+}
+CircularSeekbarView(
+    value = value,
+    onChange = { v -> value = v },
+    steps = 10
 )
 ```
