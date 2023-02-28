@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.RequestDisallowInterceptTouchEvent
@@ -32,6 +33,7 @@ fun CircularSeekbarView(
     inactiveColor: Color = MaterialTheme.colorScheme.primaryContainer,
     dotColor: Color = MaterialTheme.colorScheme.primary,
     lineWeight: Dp = 20.dp,
+    lineRoundEnd: Boolean = false,
     dotRadius: Dp = 20.dp,
     dotTouchThreshold: Dp = 15.dp,
     drawInCircle: DrawScope.() -> Unit = {},
@@ -42,7 +44,7 @@ fun CircularSeekbarView(
     val dotRadiusInPx = dpScale * dotRadius.value
     val dotTouchThresholdInPx = dpScale * dotTouchThreshold.value
     val innerStartAngle = startAngle - 90f
-    val stroke = Stroke(lineWeightInPx)
+    val stroke = Stroke(lineWeightInPx, cap = if (lineRoundEnd) StrokeCap.Round else StrokeCap.Butt)
     var sweepAngle = value * fullAngle
     if (steps > 0) {
         val perStep = fullAngle / steps
@@ -67,7 +69,6 @@ fun CircularSeekbarView(
         ) {
             when (it.actionMasked) {
                 MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
-                    println(it.getPointerId(it.actionIndex))
                     val center = dragCenter ?: return@pointerInteropFilter false
                     if (Offset(it.getX(it.actionIndex), it.getY(it.actionIndex))
                             .minus(center)

@@ -100,6 +100,7 @@ fun DemoScreen(
                     value = value, onChange = onChange,
                     modifier = Modifier.width(192.dp),
                     fullAngle = 270f,
+                    lineRoundEnd = true,
                     drawDot = { dotCenter, angle, color, radius ->
                         val starPath = Path()
                         val n = 8
@@ -141,7 +142,7 @@ fun DemoScreen(
         Row {
             for (i in 0 until 2) {
                 Box {
-                    var valueIndependent by remember {
+                    var valueIndependent by rememberSaveable {
                         mutableStateOf(0f)
                     }
                     CircularSeekbarView(

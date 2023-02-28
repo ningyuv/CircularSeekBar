@@ -4,13 +4,13 @@ A circular SeekBar with Jetpack Compose
 ## Demo app
 [demo app](https://github.com/ningyuv/CircularSeekBar/releases/latest/download/CircularSeekBar-demo.apk) in release
 
-sup<img src="https://user-images.githubusercontent.com/25382292/218315201-c3fc49f0-ae55-4734-b780-35e3cf5235de.png" alt="" width="320">
+<img src="https://user-images.githubusercontent.com/25382292/221898250-b8f2ed98-e299-46a6-8eb6-5785cecae4d0.png" alt="" width="320">
 
 ## Setup
 ### Gradle
 ``` Gradle
 dependencies {
-    implementation 'io.github.ningyuv:circular-seek-bar:0.0.2'
+    implementation 'io.github.ningyuv:circular-seek-bar:0.0.3'
 }
 ```
 
